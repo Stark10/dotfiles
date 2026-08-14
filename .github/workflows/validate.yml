@@ -19,10 +19,10 @@ jobs:
       - name: Install validation dependencies
         run: |
           if [[ "${{ runner.os }}" == "macOS" ]]; then
-            brew install chezmoi mise shellcheck shfmt
+            brew install chezmoi mise ripgrep shellcheck shfmt
           else
             sudo apt-get update
-            sudo apt-get install -y shellcheck shfmt zsh
+            sudo apt-get install -y ripgrep shellcheck shfmt zsh
             sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
             curl https://mise.run | sh
             echo "$HOME/.local/bin" >> "$GITHUB_PATH"
