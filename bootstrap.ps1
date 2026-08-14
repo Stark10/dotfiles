@@ -28,6 +28,7 @@ if (-not $SkipPackages) {
 $env:PATH = "$env:LOCALAPPDATA\Microsoft\WinGet\Links;$env:PATH"
 $XdgConfigHome = Join-Path $HOME ".config"
 $MiseConfig = Join-Path $XdgConfigHome "mise/config.toml"
+$MiseSourceConfig = Join-Path $RepoRoot "home/private_dot_config/mise/config.toml"
 $ChezmoiConfigHome = Join-Path $XdgConfigHome "chezmoi"
 $ChezmoiConfig = Join-Path $ChezmoiConfigHome "stark10-dotfiles.toml"
 
@@ -42,12 +43,20 @@ $DotfilesApplied = $false
 
 $Chezmoi = Get-Command chezmoi -ErrorAction SilentlyContinue
 $Mise = Get-Command mise -ErrorAction SilentlyContinue
+$OhMyPosh = Get-Command oh-my-posh -ErrorAction SilentlyContinue
 
 if (-not $Chezmoi -and -not $DryRun) {
     throw "chezmoi was not found after package installation. Restart PowerShell and rerun bootstrap.ps1."
 }
 if (-not $Mise -and -not $DryRun) {
     throw "mise was not found after package installation. Restart PowerShell and rerun bootstrap.ps1."
+}
+if ($DryRun) {
+    Write-Host "[dry-run] oh-my-posh font install meslo"
+} elseif (-not $OhMyPosh) {
+    throw "oh-my-posh was not found after package installation. Restart PowerShell and rerun bootstrap.ps1."
+} else {
+    Invoke-Native $OhMyPosh.Source @("font", "install", "meslo")
 }
 
 if (-not $SkipDotfiles) {
@@ -95,15 +104,30 @@ if ($DryRun -and -not $SkipDotfiles) {
     [Environment]::SetEnvironmentVariable("MISE_GLOBAL_CONFIG_FILE", $MiseConfig, "User")
 }
 
+if ($SkipDotfiles) {
+    $env:MISE_GLOBAL_CONFIG_FILE = $MiseSourceConfig
+    if ($DryRun) {
+        Write-Host "[dry-run] use checked-in mise config because dotfiles are skipped"
+    }
+}
+
 if (-not $SkipTools) {
     if ($DryRun) {
         Write-Host "[dry-run] mise --yes install"
-        Write-Host "[dry-run] mise exec -- nvim --headless '+Lazy! restore' +qa"
-        Write-Host "[dry-run] mise exec -- nvim --headless '+lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)'"
+        if (-not $SkipDotfiles) {
+            Write-Host "[dry-run] mise exec -- nvim --headless '+Lazy! restore' +qa"
+            Write-Host "[dry-run] mise exec -- nvim --headless '+lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)'"
+        } else {
+            Write-Host "Neovim plugin sync skipped because dotfiles are not applied."
+        }
     } else {
         Invoke-Native "mise" @("--yes", "install")
-        Invoke-Native "mise" @("exec", "--", "nvim", "--headless", "+Lazy! restore", "+qa")
-        Invoke-Native "mise" @("exec", "--", "nvim", "--headless", "+lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)")
+        if (-not $SkipDotfiles) {
+            Invoke-Native "mise" @("exec", "--", "nvim", "--headless", "+Lazy! restore", "+qa")
+            Invoke-Native "mise" @("exec", "--", "nvim", "--headless", "+lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)")
+        } else {
+            Write-Host "Neovim plugin sync skipped because dotfiles were not applied."
+        }
     }
 }
 

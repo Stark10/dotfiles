@@ -161,16 +161,24 @@ if ! $SKIP_DOTFILES; then
   fi
 fi
 
-export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/config.toml"
+if $SKIP_DOTFILES; then
+  export MISE_GLOBAL_CONFIG_FILE="$REPO_ROOT/home/private_dot_config/mise/config.toml"
+else
+  export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/config.toml"
+fi
 export DOTFILES_NVIM_BOOTSTRAP="$REPO_ROOT/scripts/wait-for-mason.lua"
 if ! $SKIP_TOOLS; then
   run "$MISE_BIN" --yes install
-  if ! $DRY_RUN; then
-    "$MISE_BIN" exec -- nvim --headless "+Lazy! restore" +qa
-    "$MISE_BIN" exec -- nvim --headless "+lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)"
+  if ! $SKIP_DOTFILES; then
+    if ! $DRY_RUN; then
+      "$MISE_BIN" exec -- nvim --headless "+Lazy! restore" +qa
+      "$MISE_BIN" exec -- nvim --headless "+lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)"
+    else
+      echo "[dry-run] $MISE_BIN exec -- nvim --headless +Lazy! restore +qa"
+      echo "[dry-run] $MISE_BIN exec -- nvim --headless +lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)"
+    fi
   else
-    echo "[dry-run] $MISE_BIN exec -- nvim --headless +Lazy! restore +qa"
-    echo "[dry-run] $MISE_BIN exec -- nvim --headless +lua dofile(vim.env.DOTFILES_NVIM_BOOTSTRAP)"
+    echo "Neovim plugin sync skipped because dotfiles were not applied."
   fi
 fi
 

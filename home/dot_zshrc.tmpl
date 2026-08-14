@@ -9,6 +9,15 @@ path=(
   "$BUN_INSTALL/bin"
   $path
 )
+{{ if eq .chezmoi.os "darwin" -}}
+for postgres_bin in /opt/homebrew/opt/postgresql@18/bin /usr/local/opt/postgresql@18/bin; do
+  if [[ -d "$postgres_bin" ]]; then
+    path=("$postgres_bin" $path)
+    break
+  fi
+done
+unset postgres_bin
+{{ end -}}
 export PATH
 
 HISTFILE="$HOME/.zhistory"

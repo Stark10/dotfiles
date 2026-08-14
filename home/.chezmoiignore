@@ -6,4 +6,7 @@
 {{ else }}
 Documents/PowerShell/
 AppData/
+{{ if ne .chezmoi.os "linux" }}
+.config/alacritty/alacritty.yml
+{{ end }}
 {{ end }}

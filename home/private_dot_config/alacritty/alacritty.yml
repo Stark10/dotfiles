@@ -1,0 +1,42 @@
+# Compatibility config for Alacritty versions before 0.13 on Linux.
+env:
+  TERM: xterm-256color
+
+window:
+  padding:
+    x: 10
+    y: 10
+  opacity: 0.7
+  decorations: none
+
+font:
+  normal:
+    family: MesloLGS Nerd Font Mono
+  size: 12
+
+# Coolnight palette mirrored from the current setup; original theme by Josean Martinez.
+colors:
+  primary:
+    background: "#011423"
+    foreground: "#CBE0F0"
+  cursor:
+    text: "#011423"
+    cursor: "#47FF9C"
+  normal:
+    black: "#214969"
+    red: "#E52E2E"
+    green: "#44FFB1"
+    yellow: "#FFE073"
+    blue: "#0FC5ED"
+    magenta: "#a277ff"
+    cyan: "#24EAF7"
+    white: "#24EAF7"
+  bright:
+    black: "#214969"
+    red: "#E52E2E"
+    green: "#44FFB1"
+    yellow: "#FFE073"
+    blue: "#A277FF"
+    magenta: "#a277ff"
+    cyan: "#24EAF7"
+    white: "#24EAF7"

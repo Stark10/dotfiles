@@ -87,14 +87,15 @@ OMP authentication and sessions live outside this repository. Run `omp` once
 and follow its setup flow on a new machine. Never commit `~/.omp/agent`, API
 keys, `.env` files, or SSH keys.
 
-Homebrew installs the configured Nerd Font on macOS. On Linux or Windows, run
-`oh-my-posh font install meslo` once if prompt icons are missing; font selection
-is a host UI setting and cannot be made portable across every terminal.
+The bootstrap installs the Meslo Nerd Font on every supported platform. Font
+selection is a host UI setting for terminals that are not managed here.
 
-Alacritty reproduces the Coolnight palette, `0.7` opacity, background blur,
-10-pixel padding, and Meslo font without requiring a separate theme checkout.
-macOS uses its native buttonless transparent title bar; Linux and Windows use
-no window decorations for the closest borderless equivalent.
+Alacritty reproduces the Coolnight palette (original theme by Josean Martinez),
+`0.7` opacity, 10-pixel padding, and Meslo font without requiring a separate
+theme checkout. macOS uses its native buttonless transparent title bar; Linux
+and Windows use no window decorations for the closest borderless equivalent.
+Background blur is exact on macOS and is requested on other platforms, but
+Alacritty can only provide it on macOS and KDE Wayland.
 
 ## Platform coverage
 
@@ -104,16 +105,24 @@ no window decorations for the closest borderless equivalent.
 | Tool versions | mise | mise | mise |
 | Dotfiles | chezmoi templates | chezmoi templates | chezmoi templates |
 | Shell | zsh | zsh | PowerShell 7 |
-| Terminals | Ghostty + Alacritty | Ghostty + Alacritty config | Windows Terminal + Alacritty |
+| Terminals | Ghostty + managed Alacritty | managed Alacritty | Windows Terminal + managed Alacritty |
 
 The portable mise layer also installs Codex, Go, CMake, FFmpeg, gcloud, and the
 Supabase CLI. The normal macOS package is PostgreSQL 18; Linux uses the selected
 distribution's packaged PostgreSQL. Redis is also a native Unix package. These
 services are not automatically provisioned as Windows services.
 
+The zsh configuration puts Homebrew's keg-only PostgreSQL 18 commands first on
+macOS. The installer does not automatically migrate or start an existing
+database cluster; back up or migrate old data before running
+`brew services start postgresql@18`.
+
 Linux package automation currently supports Debian/Ubuntu derivatives, Fedora,
 and Arch/Manjaro. On another distribution, install the
 prerequisites listed by the script and rerun with `--skip-packages`.
+The managed Linux terminal includes both TOML and legacy YAML configurations:
+Alacritty 0.13 and newer reads TOML, while older Debian/Ubuntu packages read
+the equivalent YAML file.
 
 ## PostgreSQL 19 graph lab
 
@@ -135,6 +144,10 @@ simple credentials are only for this loopback-bound local lab. Run
 exposes relational tables as property graphs through `CREATE PROPERTY GRAPH`
 and queries them with `GRAPH_TABLE`.
 
+The container and volume names include the exact beta version. When moving to a
+new beta or release candidate, use a new volume and carry wanted data forward
+with `pg_dump`/`pg_restore`; in-place beta catalog upgrades are not assumed.
+
 ## Repository layout
 
 ```text
@@ -144,6 +157,8 @@ home/                         chezmoi source state
 packages/Brewfile             macOS native packages
 packages/windows.ps1          Windows native packages
 scripts/install-packages-linux.sh
+scripts/mise.validate.toml         non-installing validator tool environment
+scripts/validate.ps1            PowerShell and Windows validation
 Taskfile.yml                   local checks and PostgreSQL 19 lab
 bootstrap.sh                  macOS/Linux entrypoint
 bootstrap.ps1                 Windows entrypoint
@@ -167,6 +182,10 @@ Run the local checks before publishing:
 ```bash
 task
 ```
+
+On macOS and Linux this validates the Unix bootstrap and also parses and
+dry-runs the PowerShell path. On Windows it validates the native PowerShell
+path and rendered Windows files. No hosted CI workflow is required.
 
 The retired `setup-macos.sh` is retained for history, but it refuses to run by
 default because its old dry-run path was not read-only.

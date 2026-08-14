@@ -38,15 +38,15 @@ case "$DISTRO" in
   ubuntu | debian | linuxmint | pop)
     run "${SUDO[@]}" apt-get update
     run "${SUDO[@]}" apt-get install -y \
-      build-essential ca-certificates curl git git-lfs postgresql redis-server shellcheck shfmt tmux unzip zip zsh
+      alacritty build-essential ca-certificates curl git git-lfs postgresql redis-server shellcheck shfmt tmux unzip zip zsh
     ;;
   fedora)
     run "${SUDO[@]}" dnf install -y \
-      ca-certificates curl gcc gcc-c++ git git-lfs make postgresql-server redis ShellCheck shfmt tmux unzip zip zsh
+      alacritty ca-certificates curl gcc gcc-c++ git git-lfs make postgresql-server redis ShellCheck shfmt tmux unzip zip zsh
     ;;
   arch | manjaro)
     run "${SUDO[@]}" pacman -Syu --needed --noconfirm \
-      base-devel ca-certificates curl git git-lfs postgresql redis shellcheck shfmt tmux unzip zip zsh
+      alacritty base-devel ca-certificates curl git git-lfs postgresql redis shellcheck shfmt tmux unzip zip zsh
     ;;
   *)
     echo "Unsupported Linux distribution '$DISTRO'." >&2
@@ -62,3 +62,10 @@ if ! command -v oh-my-posh >/dev/null 2>&1; then
     curl -fsSL https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.local/bin"
   fi
 fi
+
+if command -v oh-my-posh >/dev/null 2>&1; then
+  POSH_BIN=$(command -v oh-my-posh)
+else
+  POSH_BIN="$HOME/.local/bin/oh-my-posh"
+fi
+run "$POSH_BIN" font install meslo

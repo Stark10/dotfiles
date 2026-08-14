@@ -1,11 +1,11 @@
 version: "3"
 
 vars:
-  PG19_CONTAINER: stark10-postgres-19
+  PG19_CONTAINER: stark10-postgres-19beta2-graph-lab-5419
   PG19_DATABASE: graph_lab
   PG19_IMAGE: postgres:19beta2
   PG19_PORT: "5419"
-  PG19_VOLUME: stark10-postgres-19
+  PG19_VOLUME: stark10-postgres-19beta2
 
 tasks:
   default:
@@ -15,8 +15,30 @@ tasks:
 
   validate:
     desc: Validate scripts, templates, tool configuration, and rendered dotfiles
+    deps: [validate:unix, validate:powershell]
+
+  validate:unix:
+    internal: true
+    platforms: [darwin, linux]
+    env:
+      MISE_AUTO_INSTALL: "false"
+      MISE_EXEC_AUTO_INSTALL: "false"
+      MISE_GLOBAL_CONFIG_FILE: "{{.TASKFILE_DIR}}/scripts/mise.validate.toml"
+      MISE_NOT_FOUND_AUTO_INSTALL: "false"
+      MISE_OFFLINE: "true"
     cmds:
-      - ./scripts/validate.sh
+      - mise exec -- ./scripts/validate.sh
+
+  validate:powershell:
+    internal: true
+    env:
+      MISE_AUTO_INSTALL: "false"
+      MISE_EXEC_AUTO_INSTALL: "false"
+      MISE_GLOBAL_CONFIG_FILE: "{{.TASKFILE_DIR}}/scripts/mise.validate.toml"
+      MISE_NOT_FOUND_AUTO_INSTALL: "false"
+      MISE_OFFLINE: "true"
+    cmds:
+      - mise exec -- pwsh -NoLogo -NoProfile -File ./scripts/validate.ps1
 
   pg19:up:
     desc: Start the local PostgreSQL 19 beta graph lab
@@ -25,13 +47,20 @@ tasks:
         msg: Docker is required and its daemon must be running.
     cmds:
       - |
+        expected_config='image={{.PG19_IMAGE}};database={{.PG19_DATABASE}};port={{.PG19_PORT}};volume={{.PG19_VOLUME}}'
         if docker container inspect "{{.PG19_CONTAINER}}" >/dev/null 2>&1; then
+          existing_config=$(docker inspect --format '{{"{{"}} index .Config.Labels "dev.stark10.dotfiles.pg19-config" {{"}}"}}' "{{.PG19_CONTAINER}}")
+          if [ "$existing_config" != "$expected_config" ]; then
+            echo "Refusing to reuse {{.PG19_CONTAINER}}: expected config $expected_config, found ${existing_config:-unlabelled}." >&2
+            exit 1
+          fi
           docker start "{{.PG19_CONTAINER}}" >/dev/null
         else
           docker run --detach \
             --name "{{.PG19_CONTAINER}}" \
             --env POSTGRES_PASSWORD=postgres \
             --env POSTGRES_DB="{{.PG19_DATABASE}}" \
+            --label "dev.stark10.dotfiles.pg19-config=$expected_config" \
             --publish "127.0.0.1:{{.PG19_PORT}}:5432" \
             --volume "{{.PG19_VOLUME}}:/var/lib/postgresql" \
             "{{.PG19_IMAGE}}" >/dev/null

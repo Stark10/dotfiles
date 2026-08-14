@@ -12,7 +12,7 @@ decorations = "None"
 normal.family = "MesloLGS Nerd Font Mono"
 size = 12
 
-# Coolnight, vendored from alacritty/alacritty-theme for reproducibility.
+# Coolnight palette mirrored from the current setup; original theme by Josean Martinez.
 [colors.primary]
 background = "#011423"
 foreground = "#CBE0F0"
