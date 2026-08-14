@@ -30,6 +30,10 @@ if command -v mise >/dev/null 2>&1; then
     mise config ls >/dev/null
 fi
 
+if command -v task >/dev/null 2>&1; then
+  task --list >/dev/null
+fi
+
 if rg -n --glob '!setup-macos.sh' --glob '!README.md' --glob '!SETUP.md' \
   --glob '!scripts/validate.sh' \
   'claudecode|claude-code' "$REPO_ROOT"; then

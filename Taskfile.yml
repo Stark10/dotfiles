@@ -1,0 +1,75 @@
+version: "3"
+
+vars:
+  PG19_CONTAINER: stark10-postgres-19
+  PG19_DATABASE: graph_lab
+  PG19_IMAGE: postgres:19beta2
+  PG19_PORT: "5419"
+  PG19_VOLUME: stark10-postgres-19
+
+tasks:
+  default:
+    desc: Run the local repository checks
+    cmds:
+      - task: validate
+
+  validate:
+    desc: Validate scripts, templates, tool configuration, and rendered dotfiles
+    cmds:
+      - ./scripts/validate.sh
+
+  pg19:up:
+    desc: Start the local PostgreSQL 19 beta graph lab
+    preconditions:
+      - sh: docker info >/dev/null 2>&1
+        msg: Docker is required and its daemon must be running.
+    cmds:
+      - |
+        if docker container inspect "{{.PG19_CONTAINER}}" >/dev/null 2>&1; then
+          docker start "{{.PG19_CONTAINER}}" >/dev/null
+        else
+          docker run --detach \
+            --name "{{.PG19_CONTAINER}}" \
+            --env POSTGRES_PASSWORD=postgres \
+            --env POSTGRES_DB="{{.PG19_DATABASE}}" \
+            --publish "127.0.0.1:{{.PG19_PORT}}:5432" \
+            --volume "{{.PG19_VOLUME}}:/var/lib/postgresql" \
+            "{{.PG19_IMAGE}}" >/dev/null
+        fi
+      - |
+        attempts=0
+        until docker exec "{{.PG19_CONTAINER}}" \
+          pg_isready -U postgres -d "{{.PG19_DATABASE}}" >/dev/null 2>&1; do
+          attempts=$((attempts + 1))
+          if [ "$attempts" -ge 60 ]; then
+            docker logs --tail 50 "{{.PG19_CONTAINER}}"
+            echo "PostgreSQL 19 did not become ready within 60 seconds." >&2
+            exit 1
+          fi
+          sleep 1
+        done
+      - 'echo "PostgreSQL 19 is ready at postgresql://postgres:postgres@127.0.0.1:{{.PG19_PORT}}/{{.PG19_DATABASE}}"'
+
+  pg19:psql:
+    desc: Open psql inside the PostgreSQL 19 graph lab
+    deps: [pg19:up]
+    interactive: true
+    cmds:
+      - docker exec -it "{{.PG19_CONTAINER}}" psql -U postgres -d "{{.PG19_DATABASE}}"
+
+  pg19:logs:
+    desc: Follow PostgreSQL 19 graph-lab logs
+    interactive: true
+    cmds:
+      - docker logs --follow "{{.PG19_CONTAINER}}"
+
+  pg19:stop:
+    desc: Stop the PostgreSQL 19 graph lab without deleting its data volume
+    cmds:
+      - docker stop "{{.PG19_CONTAINER}}"
+
+  pg19:version:
+    desc: Print the graph lab's exact PostgreSQL version
+    deps: [pg19:up]
+    cmds:
+      - docker exec "{{.PG19_CONTAINER}}" postgres --version

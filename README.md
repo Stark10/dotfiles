@@ -102,13 +102,33 @@ is a host UI setting and cannot be made portable across every terminal.
 | Terminals | Ghostty + Alacritty | Ghostty + Alacritty config | Windows Terminal + Alacritty |
 
 The portable mise layer also installs Codex, Go, CMake, FFmpeg, gcloud, and the
-Supabase CLI. PostgreSQL and Redis are native Unix packages because service
-management and data directories are OS-specific; they are not automatically
-provisioned as Windows services.
+Supabase CLI. The normal macOS package is PostgreSQL 18; Linux uses the selected
+distribution's packaged PostgreSQL. Redis is also a native Unix package. These
+services are not automatically provisioned as Windows services.
 
 Linux package automation currently supports Debian/Ubuntu derivatives, Fedora,
 and Arch/Manjaro. On another distribution, install the
 prerequisites listed by the script and rerun with `--skip-packages`.
+
+## PostgreSQL 19 graph lab
+
+PostgreSQL 19 is currently a beta, so it is kept separate from the normal host
+database. With Docker running, Task starts the official `postgres:19beta2`
+image on loopback port `5419` with a persistent named volume:
+
+```bash
+task pg19:up
+task pg19:version
+task pg19:psql
+```
+
+Connect with
+`postgresql://postgres:postgres@127.0.0.1:5419/graph_lab`. The deliberately
+simple credentials are only for this loopback-bound local lab. Run
+`task pg19:stop` when finished; its data volume is retained. PostgreSQL 19's
+[SQL/PGQ property-graph support](https://www.postgresql.org/docs/19/ddl-property-graphs.html)
+exposes relational tables as property graphs through `CREATE PROPERTY GRAPH`
+and queries them with `GRAPH_TABLE`.
 
 ## Repository layout
 
@@ -119,6 +139,7 @@ home/                         chezmoi source state
 packages/Brewfile             macOS native packages
 packages/windows.ps1          Windows native packages
 scripts/install-packages-linux.sh
+Taskfile.yml                   local checks and PostgreSQL 19 lab
 bootstrap.sh                  macOS/Linux entrypoint
 bootstrap.ps1                 Windows entrypoint
 ```
@@ -139,7 +160,7 @@ changes.
 Run the local checks before publishing:
 
 ```bash
-./scripts/validate.sh
+task
 ```
 
 The retired `setup-macos.sh` is retained for history, but it refuses to run by
