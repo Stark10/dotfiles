@@ -1,0 +1,63 @@
+# Managed by chezmoi from Stark10/dotfiles.
+
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+export BUN_INSTALL="$HOME/.bun"
+
+path=(
+  "$HOME/.local/bin"
+  "$BUN_INSTALL/bin"
+  $path
+)
+export PATH
+
+HISTFILE="$HOME/.zhistory"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt share_history hist_expire_dups_first hist_ignore_dups hist_verify
+
+autoload -Uz compinit && compinit
+bindkey '^[[A' history-search-backward
+bindkey '^[[B' history-search-forward
+
+for plugin in \
+{{ if eq .chezmoi.os "darwin" -}}
+  /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+{{ else -}}
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+{{ end -}}
+do
+  [[ -r "$plugin" ]] && source "$plugin"
+done
+unset plugin
+
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+elif [[ -x "$HOME/.local/bin/mise" ]]; then
+  eval "$("$HOME/.local/bin/mise" activate zsh)"
+fi
+
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+if command -v oh-my-posh >/dev/null 2>&1; then
+  eval "$(oh-my-posh init zsh --config "$HOME/.config/oh-my-posh/dev.omp.json")"
+fi
+
+if command -v omp >/dev/null 2>&1; then
+  eval "$(omp completions zsh)"
+fi
+
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --icons=auto --group-directories-first'
+  alias la='eza --icons=auto --group-directories-first --all'
+  alias ll='eza --icons=auto --group-directories-first --long --git'
+else
+  alias la='ls -A'
+  alias ll='ls -alF'
+fi
+
+alias vim='nvim'
+alias python='python3'

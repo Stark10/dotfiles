@@ -1,0 +1,9 @@
+{{ if eq .chezmoi.os "windows" }}
+.zshrc
+.tmux.conf
+.config/alacritty/
+.config/ghostty/
+{{ else }}
+Documents/PowerShell/
+AppData/
+{{ end }}

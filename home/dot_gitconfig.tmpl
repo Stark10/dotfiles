@@ -1,0 +1,23 @@
+[user]
+	name = {{ .gitName }}
+	email = {{ .gitEmail }}
+[core]
+	autocrlf = {{ if eq .chezmoi.os "windows" }}true{{ else }}input{{ end }}
+	editor = nvim
+[init]
+	defaultBranch = main
+[pull]
+	rebase = false
+[credential]
+{{ if eq .chezmoi.os "darwin" -}}
+	helper = osxkeychain
+{{ else if eq .chezmoi.os "windows" -}}
+	helper = manager
+{{ else -}}
+	helper = cache
+{{ end -}}
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

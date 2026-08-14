@@ -1,5 +1,8 @@
 # macOS
 .DS_Store
+.chezmoidata.toml
+.mise.local.toml
+*.local
 .AppleDouble
 .LSOverride
 
