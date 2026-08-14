@@ -91,6 +91,11 @@ Homebrew installs the configured Nerd Font on macOS. On Linux or Windows, run
 `oh-my-posh font install meslo` once if prompt icons are missing; font selection
 is a host UI setting and cannot be made portable across every terminal.
 
+Alacritty reproduces the Coolnight palette, `0.7` opacity, background blur,
+10-pixel padding, and Meslo font without requiring a separate theme checkout.
+macOS uses its native buttonless transparent title bar; Linux and Windows use
+no window decorations for the closest borderless equivalent.
+
 ## Platform coverage
 
 | Layer | macOS | Linux | Windows |

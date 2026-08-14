@@ -4,10 +4,39 @@ TERM = "xterm-256color"
 [window]
 padding.x = 10
 padding.y = 10
-opacity = 0.90
+opacity = 0.7
 blur = true
-decorations = "Full"
+decorations = "None"
 
 [font]
 normal.family = "MesloLGS Nerd Font Mono"
 size = 12
+
+# Coolnight, vendored from alacritty/alacritty-theme for reproducibility.
+[colors.primary]
+background = "#011423"
+foreground = "#CBE0F0"
+
+[colors.cursor]
+text = "#011423"
+cursor = "#47FF9C"
+
+[colors.normal]
+black = "#214969"
+red = "#E52E2E"
+green = "#44FFB1"
+yellow = "#FFE073"
+blue = "#0FC5ED"
+magenta = "#a277ff"
+cyan = "#24EAF7"
+white = "#24EAF7"
+
+[colors.bright]
+black = "#214969"
+red = "#E52E2E"
+green = "#44FFB1"
+yellow = "#FFE073"
+blue = "#A277FF"
+magenta = "#a277ff"
+cyan = "#24EAF7"
+white = "#24EAF7"

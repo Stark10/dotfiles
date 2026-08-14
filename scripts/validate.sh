@@ -63,8 +63,13 @@ if command -v chezmoi >/dev/null 2>&1; then
   test -f "$TEST_HOME/.gitconfig"
   rg -q '^\s*name = Validation User$' "$TEST_HOME/.gitconfig"
   rg -q '^\s*email = validation@example.invalid$' "$TEST_HOME/.gitconfig"
+  python3 -c 'import sys, tomllib; data = tomllib.load(open(sys.argv[1], "rb")); assert data["window"]["opacity"] == 0.7; assert data["window"]["decorations"] == ("Buttonless" if sys.platform == "darwin" else "None"); assert data["colors"]["primary"]["background"] == "#011423"' \
+    "$TEST_HOME/.config/alacritty/alacritty.toml"
   test -f "$TEST_HOME/.config/nvim/lua/plugins/omp.lua"
   test -f "$TEST_HOME/.config/mise/config.toml"
 fi
+
+python3 -c 'import sys, tomllib; data = tomllib.load(open(sys.argv[1], "rb")); assert data["window"]["decorations"] == "None"; assert data["window"]["opacity"] == 0.7' \
+  "$REPO_ROOT/home/AppData/Roaming/alacritty/alacritty.toml"
 
 echo "Validation passed."
