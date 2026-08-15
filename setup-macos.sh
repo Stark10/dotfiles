@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 # =============================================================================
 # macOS Dev Environment Setup Script
-# Author: Samwise
+# Original macOS installer (retired).
 # Description: Replicates a full macOS development environment with tools,
 #              shell config, editor, and dotfiles.
 # Usage: ./setup-macos.sh [--dry-run]
 # =============================================================================
 set -euo pipefail
+
+cat >&2 <<'EOF'
+setup-macos.sh is retired because its dry-run mode can still write files.
+
+Use the safe, cross-platform installer instead:
+  ./bootstrap.sh --dry-run
+  ./bootstrap.sh --yes
+EOF
+exit 2
 
 # ─── Colors & Logging ────────────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -394,8 +403,7 @@ success "Oh My Posh config written."
 # =============================================================================
 info "=== Setting up Git ==="
 
-run git config --global user.name "Samwise"
-run git config --global user.email "sam@deeptree.co.nz"
+# Git author identity is intentionally configured per user by chezmoi.
 run git config --global core.autocrlf "input"
 run git config --global credential.helper osxkeychain
 run git config --global filter.lfs.clean "git-lfs clean -- %f"

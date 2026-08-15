@@ -1,147 +1,191 @@
-# dotfiles
+# Cross-platform development environment
 
-One-command setup script to replicate my macOS development environment on a new machine.
+This repo installs the same terminal and LazyVim baseline on macOS, Linux, and
+Windows. It uses three deliberately separate layers:
 
-## Quick Start
+- **native packages** for OS-level prerequisites and desktop terminals;
+- **mise** for portable developer tools and pinned runtimes;
+- **chezmoi** for rendering and applying the dotfiles in `home/`.
+
+The Neovim AI workflow uses
+[Sidekick.nvim](https://github.com/folke/sidekick.nvim) with
+[Oh My Pi](https://github.com/can1357/oh-my-pi) (`omp`). Claude Code is no
+longer part of the active setup. GitHub Copilot completion remains enabled,
+while Sidekick's separate next-edit-suggestion feature is disabled.
+
+## Quick start
+
+Clone the repo, preview the changes, and only then apply them.
+
+### macOS or Linux
 
 ```bash
-# Clone and run
 git clone https://github.com/Stark10/dotfiles.git
 cd dotfiles
-chmod +x setup-macos.sh
-./setup-macos.sh
+./bootstrap.sh --dry-run
+./bootstrap.sh --yes
 ```
 
-Or dry-run first to preview what it'll do:
+The script cannot replace its parent shell. When it finishes, run `exec zsh`
+to enter the configured shell. To make zsh the login shell permanently, run
+`chsh -s "$(command -v zsh)"`, then sign out and back in.
+
+### Windows
+
+Windows requires `winget` (provided by Microsoft App Installer) and Git before
+the repository can be cloned. On a stock machine with `winget`, install Git,
+restart PowerShell, and then run:
+
+```powershell
+winget install --id Git.Git --exact
+git clone https://github.com/Stark10/dotfiles.git
+Set-Location dotfiles
+.\bootstrap.ps1 -DryRun
+.\bootstrap.ps1 -Yes
+```
+
+The bootstrap scripts install packages, preview the chezmoi diff, apply the
+dotfiles, install mise-managed tools, and sync LazyVim plugins. Without
+`--yes`/`-Yes`, the real run asks before chezmoi changes the home directory.
+On first use, chezmoi also asks for the Git author name and email to place in
+the machine-local configuration, so people using a fork do not inherit mine.
+The installer stores this repo's data in
+`~/.config/chezmoi/stark10-dotfiles.toml`; it does not replace chezmoi's normal
+config, existing source directory, or encryption identity.
+
+Useful options:
+
+| Unix | PowerShell | Effect |
+| --- | --- | --- |
+| `--dry-run` | `-DryRun` | Print planned mutations without applying them |
+| `--skip-packages` | `-SkipPackages` | Skip Homebrew, distro, or winget packages |
+| `--skip-tools` | `-SkipTools` | Skip mise tools and Neovim plugin sync |
+| `--skip-dotfiles` | `-SkipDotfiles` | Skip chezmoi diff and apply |
+
+## LazyVim and Oh My Pi
+
+The active configuration is in
+`home/private_dot_config/nvim/lua/plugins/omp.lua`. The main bindings are:
+
+| Binding | Action |
+| --- | --- |
+| `<leader>aa` | Toggle an OMP terminal for the current project |
+| `<leader>as` | Choose or create an AI CLI session |
+| `<leader>af` | Send the current file to the active CLI |
+| `<leader>av` | Send the visual selection |
+| `<leader>ap` | Open Sidekick's prompt picker |
+| `<C-.>` | Focus the active CLI, or hide it when already focused |
+
+Sidekick opens the CLI in a normal Neovim split, so standard window commands
+resize it. Because OMP starts in terminal-input mode, first press `<C-q>` (the
+Sidekick stop-input binding) or `<C-\><C-n>`, then use `<C-w>>` and `<C-w><`
+to change width, `<C-w>+` and `<C-w>-` to change height, `<C-w>|` to maximize
+width, `<C-w>_` to maximize height, or `<C-w>=` to equalize all windows. Prefix
+a resize with a count for a larger step, such as `10<C-w>>`.
+
+OMP authentication and sessions live outside this repository. Run `omp` once
+and follow its setup flow on a new machine. Never commit `~/.omp/agent`, API
+keys, `.env` files, or SSH keys.
+
+The bootstrap installs the Meslo Nerd Font on every supported platform. Font
+selection is a host UI setting for terminals that are not managed here.
+
+Alacritty reproduces the Coolnight palette (original theme by Josean Martinez),
+`0.7` opacity, 10-pixel padding, and Meslo font without requiring a separate
+theme checkout. macOS uses its native buttonless transparent title bar; Linux
+and Windows use no window decorations for the closest borderless equivalent.
+Background blur is exact on macOS and is requested on other platforms, but
+Alacritty can only provide it on macOS and KDE Wayland.
+
+## Platform coverage
+
+| Layer | macOS | Linux | Windows |
+| --- | --- | --- | --- |
+| Native packages | Homebrew `packages/Brewfile` | apt, dnf, or pacman | winget |
+| Tool versions | mise | mise | mise |
+| Dotfiles | chezmoi templates | chezmoi templates | chezmoi templates |
+| Shell | zsh | zsh | PowerShell 7 |
+| Terminals | Ghostty + managed Alacritty | managed Alacritty | Windows Terminal + managed Alacritty |
+
+The portable mise layer also installs Codex, Go, CMake, FFmpeg, gcloud, and the
+Supabase CLI. The normal macOS package is PostgreSQL 18; Linux uses the selected
+distribution's packaged PostgreSQL. Redis is also a native Unix package. These
+services are not automatically provisioned as Windows services.
+
+The zsh configuration puts Homebrew's keg-only PostgreSQL 18 commands first on
+macOS. The installer does not automatically migrate or start an existing
+database cluster; back up or migrate old data before running
+`brew services start postgresql@18`.
+
+Linux package automation currently supports Debian/Ubuntu derivatives, Fedora,
+and Arch/Manjaro. On another distribution, install the
+prerequisites listed by the script and rerun with `--skip-packages`.
+The managed Linux terminal includes both TOML and legacy YAML configurations:
+Alacritty 0.13 and newer reads TOML, while older Debian/Ubuntu packages read
+the equivalent YAML file.
+
+## PostgreSQL 19 graph lab
+
+PostgreSQL 19 is currently a beta, so it is kept separate from the normal host
+database. With Docker running, Task starts the official `postgres:19beta2`
+image on loopback port `5419` with a persistent named volume:
 
 ```bash
-./setup-macos.sh --dry-run
+task pg19:up
+task pg19:version
+task pg19:psql
 ```
 
-## What Gets Installed
+Connect with
+`postgresql://postgres:postgres@127.0.0.1:5419/graph_lab`. The deliberately
+simple credentials are only for this loopback-bound local lab. Run
+`task pg19:stop` when finished; its data volume is retained. PostgreSQL 19's
+[SQL/PGQ property-graph support](https://www.postgresql.org/docs/19/ddl-property-graphs.html)
+exposes relational tables as property graphs through `CREATE PROPERTY GRAPH`
+and queries them with `GRAPH_TABLE`.
 
-### Package Manager
-- **Homebrew** — macOS package manager
+The container and volume names include the exact beta version. When moving to a
+new beta or release candidate, use a new volume and carry wanted data forward
+with `pg_dump`/`pg_restore`; in-place beta catalog upgrades are not assumed.
 
-### GUI Apps (Casks)
-| App | Purpose |
-|-----|---------|
-| [Ghostty](https://ghostty.org) | Terminal emulator (primary) |
-| [Alacritty](https://alacritty.org) | GPU-accelerated terminal (fallback) |
-| [Claude Code](https://claude.ai/code) | AI coding assistant |
-| [Codex CLI](https://github.com/openai/codex) | OpenAI's CLI |
-| [Google Cloud SDK](https://cloud.google.com/sdk) | gcloud CLI |
+## Repository layout
 
-### CLI Tools (Formulae)
-| Tool | Purpose |
-|------|---------|
-| [eza](https://github.com/eza-community/eza) | Modern `ls` replacement |
-| [fd](https://github.com/sharkdp/fd) | Modern `find` replacement |
-| [fzf](https://github.com/junegunn/fzf) | Fuzzy finder |
-| [ripgrep](https://github.com/BurntSushi/ripgrep) | Modern `grep` replacement |
-| [zoxide](https://github.com/ajeetdsouza/zoxide) | Smarter `cd` |
-| [lazygit](https://github.com/jesseduffield/lazygit) | TUI git client |
-| [tmux](https://github.com/tmux/tmux) | Terminal multiplexer |
-| [tree-sitter](https://tree-sitter.github.io) | Incremental parsing |
-| [gh](https://github.com/cli/cli) | GitHub CLI |
-| [herdr](https://github.com/HerdrUp/herdr) | Database client |
-| [supabase](https://supabase.com) | Supabase CLI |
-| [go-task](https://go-task.github.io) | Task runner |
-| [ffmpeg](https://ffmpeg.org) | Media processing |
-| [openssl](https://openssl.org) | TLS library |
-| [cmake](https://cmake.org) | Build system |
-| [postgresql@14](https://postgresql.org) | PostgreSQL 14 |
-| [redis](https://redis.io) | Redis server |
-| [oh-my-posh](https://ohmyposh.dev) | Prompt theme engine |
-| [python@3.13](https://python.org) | Python 3.13 |
-| [rust](https://rust-lang.org) | Rust via Homebrew |
-| [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) | Shell autosuggestions |
-| [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) | Shell syntax highlighting |
+```text
+home/                         chezmoi source state
+  private_dot_config/nvim/            LazyVim configuration
+  private_dot_config/mise/config.toml portable tools and runtimes
+packages/Brewfile             macOS native packages
+packages/windows.ps1          Windows native packages
+scripts/install-packages-linux.sh
+scripts/mise.validate.toml         non-installing validator tool environment
+scripts/validate.ps1            PowerShell and Windows validation
+Taskfile.yml                   local checks and PostgreSQL 19 lab
+bootstrap.sh                  macOS/Linux entrypoint
+bootstrap.ps1                 Windows entrypoint
+```
 
-### Version Managers & Runtimes
-| Tool | Purpose |
-|------|---------|
-| [NVM](https://github.com/nvm-sh/nvm) | Node.js version manager |
-| [Bun](https://bun.sh) | Fast JS/TS runtime |
-| [Rustup](https://rustup.rs) | Rust version manager |
-| [uv](https://astral.sh/uv) | Fast Python package manager |
+## Updating the setup
 
-### Shell & Prompt
-| Tool | Purpose |
-|------|---------|
-| **Zsh** + **Oh My Zsh** | Shell + framework |
-| **Oh My Posh** (Night Owl theme) | Cross-shell prompt with rich info |
-| **Powerlevel10k** instant prompt | Fast P10k loading |
+Edit files under `home/`, then preview and apply them:
 
-### Editor
-| Tool | Purpose |
-|------|---------|
-| **Neovim** + **LazyVim** | Modern Neovim distro |
-| [lazy.nvim](https://github.com/folke/lazy.nvim) | Plugin manager |
-| [neo-tree.nvim](https://github.com/nvim-neo-tree/neo-tree.nvim) | File explorer |
-| [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) | Fuzzy finder |
-| [snacks.nvim](https://github.com/folke/snacks.nvim) | Utility plugins |
-| [yanky.nvim](https://github.com/gbprod/yanky.nvim) | Better paste buffer |
-| [overseer.nvim](https://github.com/stevearc/overseer.nvim) | Task runner |
-| [fzf-lua](https://github.com/ibhagun/fzf-lua) | Fzf integration |
-| [outline.nvim](https://github.com/hedyhli/outline.nvim) | LSP symbol outline |
-| [refactoring.nvim](https://github.com/LazyVim/lazyvim.plugins.extras.editor.refactoring) | Code refactoring |
+```bash
+chezmoi --config ~/.config/chezmoi/stark10-dotfiles.toml diff --source "$PWD"
+chezmoi --config ~/.config/chezmoi/stark10-dotfiles.toml apply --source "$PWD"
+```
 
-#### LazyVim Language Extras
-Rust, TypeScript, JavaScript, TSX, Python, Svelte, Astro, Docker, JSON, YAML, TOML, SQL, Git, Markdown, Zig
+Use `mise upgrade` when you intentionally want newer `latest` tools. Pinned
+runtime and OMP versions only change when `home/private_dot_config/mise/config.toml`
+changes.
 
-### Terminal Multiplexer (tmux)
-| Plugin | Purpose |
-|--------|---------|
-| [TPM](https://github.com/tmux-plugins/tpm) | Plugin manager |
-| [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator) | Vim ↔ tmux pane navigation |
-| [tmux-tokyo-night](https://github.com/fabioluciano/tmux-tokyo-night) | Tokyo Night colors |
-| [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) | Session persistence |
-| [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) | Auto-save sessions |
+Run the local checks before publishing:
 
-### Git Configuration
-- User: `Samwise` / `sam@deeptree.co.nz`
-- LFS enabled
-- `osxkeychain` credential helper
-- `gh`-backed GitHub auth
+```bash
+task
+```
 
-### Dotfiles Written
-| File | Description |
-|------|-------------|
-| `~/.zshrc` | Shell config, aliases, plugins, prompt |
-| `~/.tmux.conf` | Tmux config with plugin setup |
-| `~/.config/nvim/` | LazyVim Neovim config |
-| `~/.config/alacritty/alacritty.toml` | Alacritty terminal config |
-| `~/.config/ghostty/config` | Ghostty terminal config |
-| `~/night-owl.omp.json` | Oh My Posh Night Owl prompt theme |
+On macOS and Linux this validates the Unix bootstrap and also parses and
+dry-runs the PowerShell path. On Windows it validates the native PowerShell
+path and rendered Windows files. No hosted CI workflow is required.
 
-## Post-Setup Steps
-
-After running the script, do these manually:
-
-1. **Restart your terminal** — open a new window or run `exec zsh`
-2. **Install tmux plugins** — open tmux and press `<prefix> + I` (default `Ctrl-b` then `I`)
-3. **Install Neovim plugins** — open `nvim` and run `:Lazy sync`
-4. **Set up NVM** — `nvm install --lts` and `nvm use --lts`
-5. **Copy SSH keys** — if you have existing keys, copy them to `~/.ssh/`
-6. **Install tmux plugins** — run `~/.tmux/plugins/tpm/bin/install_plugins`
-
-## Customization
-
-Edit these files after setup to personalize:
-
-- `~/.zshrc` — aliases, env vars, plugins
-- `~/night-owl.omp.json` — prompt appearance
-- `~/.config/nvim/lazyvim.json` — Neovim extras
-- `~/.config/nvim/lua/plugins/` — custom Neovim plugins
-- `~/.tmux.conf` — tmux keybindings and plugins
-
-## Troubleshooting
-
-**Oh My Posh not working?** Make sure you're using a Nerd Font (MesloLGS Nerd Font Mono is installed via Homebrew).
-
-**Neovim plugins not loading?** Run `:Lazy sync` inside Neovim.
-
-**tmux plugins not loading?** Run `~/.tmux/plugins/tpm/bin/install_plugins` inside tmux.
-
-**Brew cask install fails?** Run `brew doctor` and fix any issues first.
+The retired `setup-macos.sh` is retained for history, but it refuses to run by
+default because its old dry-run path was not read-only.
