@@ -9,8 +9,7 @@ Windows. It uses three deliberately separate layers:
 
 The Neovim AI workflow uses
 [Sidekick.nvim](https://github.com/folke/sidekick.nvim) with
-[Oh My Pi](https://github.com/can1357/oh-my-pi) (`omp`). Claude Code is no
-longer part of the active setup. GitHub Copilot completion remains enabled,
+[Oh My Pi](https://github.com/can1357/oh-my-pi) (`omp`). GitHub Copilot completion remains enabled,
 while Sidekick's separate next-edit-suggestion feature is disabled.
 
 ## Quick start
