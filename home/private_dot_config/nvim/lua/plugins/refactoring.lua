@@ -1,18 +1,5 @@
 local function pick_refactor()
-  local refactoring = require("refactoring")
-  if LazyVim.pick.picker.name == "telescope" then
-    return require("telescope").extensions.refactoring.refactors()
-  elseif LazyVim.pick.picker.name == "fzf" then
-    require("fzf-lua").fzf_exec(refactoring.get_refactors(), {
-      actions = {
-        default = function(selected)
-          refactoring.refactor(selected[1])
-        end,
-      },
-    })
-  else
-    refactoring.select_refactor()
-  end
+  require("refactoring").select_refactor()
 end
 
 return {
@@ -22,6 +9,11 @@ return {
     commit = "2423b02c400427b9f8d1e28ae3be7da9b291224e",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
+      {
+        "lewis6991/async.nvim",
+        -- Matches the async API used by the Neovim 0.11-compatible refactoring pin.
+        commit = "7a1d7d49933fbe902b84b55f352a3b10fd587331",
+      },
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
@@ -31,7 +23,7 @@ return {
       {
         "<leader>ri",
         function()
-          return require("refactoring").refactor("Inline Variable")
+          return require("refactoring").inline_var()
         end,
         desc = "Inline Variable",
         mode = { "n", "x" },
@@ -40,14 +32,14 @@ return {
       {
         "<leader>rP",
         function()
-          require("refactoring").debug.printf({ below = false })
+          require("refactoring.debug").print_loc()
         end,
         desc = "Debug Print",
       },
       {
         "<leader>rp",
         function()
-          require("refactoring").debug.print_var({ normal = true })
+          return require("refactoring.debug").print_var()
         end,
         desc = "Debug Print Variable",
         mode = { "n", "x" },
@@ -55,14 +47,14 @@ return {
       {
         "<leader>rc",
         function()
-          require("refactoring").debug.cleanup({})
+          require("refactoring.debug").cleanup()
         end,
         desc = "Debug Cleanup",
       },
       {
         "<leader>rf",
         function()
-          return require("refactoring").refactor("Extract Function")
+          return require("refactoring").extract_func()
         end,
         desc = "Extract Function",
         mode = { "n", "x" },
@@ -71,7 +63,7 @@ return {
       {
         "<leader>rF",
         function()
-          return require("refactoring").refactor("Extract Function To File")
+          return require("refactoring").extract_func_to_file()
         end,
         desc = "Extract Function To File",
         mode = { "n", "x" },
@@ -80,7 +72,7 @@ return {
       {
         "<leader>rx",
         function()
-          return require("refactoring").refactor("Extract Variable")
+          return require("refactoring").extract_var()
         end,
         desc = "Extract Variable",
         mode = { "n", "x" },
@@ -89,12 +81,8 @@ return {
     },
     opts = { show_success_message = true },
     config = function(_, opts)
-      require("refactoring").setup(opts)
-      if LazyVim.has("telescope.nvim") then
-        LazyVim.on_load("telescope.nvim", function()
-          require("telescope").load_extension("refactoring")
-        end)
-      end
+      -- This pinned revision moved setup into its config module.
+      require("refactoring.config").setup(opts)
     end,
   },
 }

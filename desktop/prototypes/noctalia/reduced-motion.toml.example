@@ -1,0 +1,5 @@
+# Optional overlay for a future reduced-motion profile. Do not place this file
+# beside live Noctalia TOML without an explicit accessibility selection.
+
+[shell.animation]
+enabled = false

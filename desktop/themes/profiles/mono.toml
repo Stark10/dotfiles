@@ -1,0 +1,14 @@
+schema = 1
+id = "mono"
+label = "Mono"
+description = "Near-monochrome wallpaper tones with minimal colour noise."
+mode = "dark"
+palette_source = "wallpaper"
+wallpaper_scheme = "m3-monochrome"
+
+[surfaces]
+contrast = "medium"
+accent_frequency = "active-only"
+
+[motion]
+intensity = "restrained"

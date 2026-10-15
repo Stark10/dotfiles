@@ -38,15 +38,18 @@ case "$DISTRO" in
   ubuntu | debian | linuxmint | pop)
     run "${SUDO[@]}" apt-get update
     run "${SUDO[@]}" apt-get install -y \
-      alacritty build-essential ca-certificates curl git git-lfs postgresql redis-server shellcheck shfmt tmux unzip zip zsh
+      alacritty build-essential ca-certificates curl git git-lfs postgresql redis-server shellcheck shfmt tmux unzip zip zsh \
+      zsh-autosuggestions zsh-history-substring-search zsh-syntax-highlighting
     ;;
   fedora)
     run "${SUDO[@]}" dnf install -y \
-      alacritty ca-certificates curl gcc gcc-c++ git git-lfs make postgresql-server redis ShellCheck shfmt tmux unzip zip zsh
+      alacritty ca-certificates curl gcc gcc-c++ git git-lfs make postgresql-server redis ShellCheck shfmt tmux unzip zip zsh \
+      zsh-autosuggestions zsh-history-substring-search zsh-syntax-highlighting
     ;;
-  arch | manjaro)
+  arch | cachyos | manjaro)
     run "${SUDO[@]}" pacman -Syu --needed --noconfirm \
-      alacritty base-devel ca-certificates curl git git-lfs postgresql redis shellcheck shfmt tmux unzip zip zsh
+      alacritty base-devel ca-certificates curl git git-lfs postgresql redis shellcheck shfmt tmux unzip zip zsh \
+      zsh-autosuggestions zsh-history-substring-search zsh-syntax-highlighting
     ;;
   *)
     echo "Unsupported Linux distribution '$DISTRO'." >&2

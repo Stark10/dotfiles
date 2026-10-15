@@ -1,0 +1,24 @@
+id = "samh/quiet-core"
+name = "Quiet Core"
+version = "0.1.0"
+plugin_api = 24
+author = "samh"
+license = "MIT"
+dependencies = []
+tags = ["desktop", "dashboard", "prototype"]
+icon = "sparkles"
+description = "Non-operational visual prototype for the Quiet Core dashboard."
+
+[[widget]]
+id = "dashboard-button"
+entry = "widget.luau"
+
+[[panel]]
+id = "dashboard"
+entry = "dashboard.luau"
+width = 1180
+height = 760
+placement = "floating"
+position = "center"
+dismiss_on_outside_click = false
+keyboard_focus = "on_demand"

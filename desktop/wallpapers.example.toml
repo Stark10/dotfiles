@@ -1,0 +1,9 @@
+schema = 1
+
+# This root is machine-local in the eventual chezmoi data. Wallpapers are not
+# copied into this repository without an explicit redistribution decision.
+root = "~/Pictures/Wallpapers"
+
+[selection]
+profile = "calm"
+wallpaper = "collection/example.jpg"

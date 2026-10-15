@@ -21,28 +21,39 @@ unset postgres_bin
 export PATH
 
 HISTFILE="$HOME/.zhistory"
-HISTSIZE=10000
-SAVEHIST=10000
-setopt share_history hist_expire_dups_first hist_ignore_dups hist_verify
+HISTSIZE=50000
+SAVEHIST=50000
+setopt append_history share_history hist_expire_dups_first hist_ignore_dups hist_ignore_space hist_reduce_blanks hist_verify
 
 autoload -Uz compinit && compinit
-bindkey '^[[A' history-search-backward
-bindkey '^[[B' history-search-forward
+bindkey -e
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 for plugin in \
 {{ if eq .chezmoi.os "darwin" -}}
   /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
   /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
-  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh \
+  /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 {{ else -}}
   /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
-  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/share/zsh-history-substring-search/zsh-history-substring-search.zsh \
+  /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 {{ end -}}
 do
   [[ -r "$plugin" ]] && source "$plugin"
 done
 unset plugin
+
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^F' autosuggest-accept
 
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
@@ -51,6 +62,7 @@ elif [[ -x "$HOME/.local/bin/mise" ]]; then
 fi
 
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
 if command -v oh-my-posh >/dev/null 2>&1; then
   eval "$(oh-my-posh init zsh --config "$HOME/.config/oh-my-posh/dev.omp.json")"
 fi
@@ -70,3 +82,17 @@ fi
 
 alias vim='nvim'
 alias python='python3'
+
+# Syntax highlighting must be loaded after all other shell integrations.
+for plugin in \
+{{ if eq .chezmoi.os "darwin" -}}
+  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+{{ else -}}
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+{{ end -}}
+do
+  [[ -r "$plugin" ]] && source "$plugin"
+done
+unset plugin

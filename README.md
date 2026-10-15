@@ -9,8 +9,8 @@ Windows. It uses three deliberately separate layers:
 
 The Neovim AI workflow uses
 [Sidekick.nvim](https://github.com/folke/sidekick.nvim) with
-[Oh My Pi](https://github.com/can1357/oh-my-pi) (`omp`). GitHub Copilot completion remains enabled,
-while Sidekick's separate next-edit-suggestion feature is disabled.
+[Oh My Pi](https://github.com/can1357/oh-my-pi) (`omp`). Copilot and Sidekick's
+next-edit-suggestion feature are disabled; Sidekick provides the CLI workflow.
 
 ## Quick start
 
@@ -117,11 +117,25 @@ database cluster; back up or migrate old data before running
 `brew services start postgresql@18`.
 
 Linux package automation currently supports Debian/Ubuntu derivatives, Fedora,
-and Arch/Manjaro. On another distribution, install the
+and Arch/CachyOS/Manjaro. On another distribution, install the
 prerequisites listed by the script and rerun with `--skip-packages`.
 The managed Linux terminal includes both TOML and legacy YAML configurations:
 Alacritty 0.13 and newer reads TOML, while older Debian/Ubuntu packages read
 the equivalent YAML file.
+
+### LM Studio on Linux
+
+LM Studio is an optional, large desktop application and is not installed by the
+general development bootstrap. Install or update the official AppImage and add
+its application-menu entry with:
+
+```bash
+./scripts/install-lm-studio-linux.sh --dry-run
+./scripts/install-lm-studio-linux.sh
+```
+
+The installer supports x86-64 and ARM64 Linux, installs entirely within the
+current user's `~/.local` directories, and provides an `lm-studio` command.
 
 ## PostgreSQL 19 graph lab
 

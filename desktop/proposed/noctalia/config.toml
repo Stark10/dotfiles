@@ -1,0 +1,219 @@
+# Proposed production configuration for the first guarded Quiet Core preview.
+# It preserves the current host integrations while changing visual ownership.
+
+[accessibility]
+ui_scale = 1.20
+
+[bar.default]
+position = "top"
+enabled = true
+auto_hide = false
+smart_auto_hide = false
+reserve_space = true
+layer = "top"
+thickness = 32
+background_opacity = 0.58
+border = "outline"
+border_width = 1.0
+shadow = true
+contact_shadow = false
+radius = 18
+radius_top_left = 0
+radius_top_right = 0
+radius_bottom_left = 18
+radius_bottom_right = 18
+concave_edge_corners = true
+margin_ends = 0
+margin_edge = 0
+padding = 12
+widget_spacing = 8
+hover_highlight = true
+scale = 1.0
+font_scale = 1.0
+font_weight = 500
+font_family = "Rubik"
+capsule = false
+start = ["launcher", "quiet_core", "workspaces", "active_window"]
+center = ["clock"]
+end = ["media", "group:system", "tray", "notifications", "network", "volume", "session"]
+
+[[bar.default.capsule_group]]
+id = "system"
+members = ["temp", "sysmon_2", "sysmon_3", "llama_control"]
+fill = "surface_variant"
+border = "outline"
+opacity = 0.32
+padding = 6.0
+
+[shell]
+corner_radius_scale = 1.0
+button_borders = false
+input_borders = true
+popup_borders = true
+card_borders = true
+popup_shadows = true
+font_family = "Rubik"
+time_format = "{:%H:%M}"
+date_format = "%A, %-d %B"
+clipboard_image_action_command = "satty -f -"
+launch_apps_as_systemd_services = true
+polkit_agent = true
+settings_show_advanced = true
+setup_wizard_enabled = false
+
+[shell.animation]
+enabled = true
+speed = 1.0
+
+[shell.shadow]
+direction = "down"
+alpha = 0.38
+
+[shell.greeter_sync]
+auto_sync = false
+
+[shell.panel]
+transparency_mode = "soft"
+borders = true
+shadow = true
+list_item_background = false
+floating_layer = "overlay"
+launcher_placement = "floating"
+launcher_position = "center"
+control_center_placement = "floating"
+control_center_position = "center_right"
+wallpaper_placement = "floating"
+wallpaper_position = "center"
+session_placement = "floating"
+session_position = "center"
+
+[shell.screenshot]
+copy_to_clipboard = false
+pipe_command = "satty -f -"
+pipe_to_command = true
+save_to_file = false
+
+[[shell.session.actions]]
+action = "lock"
+countdown_seconds = 0.0
+enabled = true
+shortcut = "1"
+variant = "default"
+
+[[shell.session.actions]]
+action = "logout"
+countdown_seconds = 0.0
+enabled = true
+shortcut = "2"
+variant = "default"
+
+[[shell.session.actions]]
+action = "lock_and_suspend"
+countdown_seconds = 3.0
+enabled = true
+shortcut = "3"
+variant = "default"
+
+[[shell.session.actions]]
+action = "reboot"
+countdown_seconds = 3.0
+enabled = true
+shortcut = "4"
+variant = "default"
+
+[[shell.session.actions]]
+action = "shutdown"
+countdown_seconds = 3.0
+enabled = true
+shortcut = "5"
+variant = "destructive"
+
+[system.monitor]
+gpu_poll_seconds = 2
+
+[theme]
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "soft"
+
+[theme.templates]
+builtin_ids = ["alacritty", "btop", "gtk3", "gtk4", "kcolorscheme", "qt"]
+
+[osd]
+position = "top_center"
+orientation = "horizontal"
+scale = 1.0
+background_opacity = 0.82
+border = true
+offset_x = 20
+offset_y = 8
+
+[widget.launcher]
+color = "primary"
+capsule = false
+
+[widget.quiet_core]
+type = "samh/quiet-core:dashboard-button"
+
+[widget.workspaces]
+color = "on_surface_variant"
+capsule = false
+active_pill_size = 2.5
+inactive_pill_size = 1.0
+pill_scale = 0.80
+show_labels = false
+
+[widget.active_window]
+color = "on_surface_variant"
+capsule = false
+
+[widget.clock]
+color = "on_surface"
+format = "{:%H:%M}"
+capsule = false
+
+[widget.media]
+color = "on_surface_variant"
+hide_when_no_media = true
+title_scroll = "on_hover"
+capsule = false
+
+[widget.temp]
+color = "on_surface_variant"
+show_value = false
+
+[widget.sysmon_2]
+type = "sysmon"
+stat = "gpu_temp"
+glyph = "gpu-usage"
+show_value = false
+color = "on_surface_variant"
+
+[widget.sysmon_3]
+type = "sysmon"
+stat = "ram_used"
+glyph = "cpu-2"
+show_value = false
+color = "on_surface_variant"
+
+[widget.llama_control]
+type = "samh/llama-control:status"
+
+[widget.tray]
+capsule = false
+
+[widget.notifications]
+color = "on_surface_variant"
+capsule = false
+
+[widget.network]
+color = "on_surface_variant"
+capsule = false
+
+[widget.volume]
+color = "on_surface_variant"
+capsule = false
+
+[widget.session]
+color = "on_surface_variant"
+capsule = false

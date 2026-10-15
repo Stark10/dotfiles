@@ -17,6 +17,7 @@ unset required_command
 
 bash -n \
   "$REPO_ROOT/bootstrap.sh" \
+  "$REPO_ROOT/scripts/install-lm-studio-linux.sh" \
   "$REPO_ROOT/scripts/install-packages-linux.sh" \
   "$REPO_ROOT/setup-macos.sh"
 
@@ -27,11 +28,15 @@ python3 -m json.tool "$REPO_ROOT/home/private_dot_config/oh-my-posh/dev.omp.json
 
 shellcheck \
   "$REPO_ROOT/bootstrap.sh" \
+  "$REPO_ROOT/scripts/install-lm-studio-linux.sh" \
   "$REPO_ROOT/scripts/install-packages-linux.sh"
 
 shfmt -d -i 2 -ci \
   "$REPO_ROOT/bootstrap.sh" \
+  "$REPO_ROOT/scripts/install-lm-studio-linux.sh" \
   "$REPO_ROOT/scripts/install-packages-linux.sh"
+
+"$REPO_ROOT/scripts/install-lm-studio-linux.sh" --dry-run | rg -q 'LM Studio'
 
 MISE_GLOBAL_CONFIG_FILE="$REPO_ROOT/home/private_dot_config/mise/config.toml" \
   mise config ls >/dev/null
@@ -77,7 +82,11 @@ python3 -c 'import sys, tomllib; data = tomllib.load(open(sys.argv[1], "rb")); a
   "$TEST_HOME/.config/alacritty/alacritty.toml"
 test -f "$TEST_HOME/.config/nvim/lua/plugins/omp.lua"
 test -f "$TEST_HOME/.config/mise/config.toml"
-test ! -e "$TEST_HOME/.config/alacritty/alacritty.yml"
+if [[ $(uname -s) == Linux ]]; then
+  test -f "$TEST_HOME/.config/alacritty/alacritty.yml"
+else
+  test ! -e "$TEST_HOME/.config/alacritty/alacritty.yml"
+fi
 
 SKIP_DRY_RUN=$(HOME="$TEST_HOME" XDG_CONFIG_HOME="$TEST_HOME/.config" \
   "$REPO_ROOT/bootstrap.sh" --dry-run --skip-packages --skip-dotfiles)

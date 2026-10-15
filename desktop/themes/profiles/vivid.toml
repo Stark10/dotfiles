@@ -1,0 +1,14 @@
+schema = 1
+id = "vivid"
+label = "Vivid"
+description = "Higher-chroma wallpaper colours for media and showcase use."
+mode = "dark"
+palette_source = "wallpaper"
+wallpaper_scheme = "vibrant"
+
+[surfaces]
+contrast = "medium"
+accent_frequency = "selective"
+
+[motion]
+intensity = "expressive"

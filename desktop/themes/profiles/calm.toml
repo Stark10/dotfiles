@@ -1,0 +1,14 @@
+schema = 1
+id = "calm"
+label = "Calm"
+description = "Low-chroma wallpaper colours for focused daily work."
+mode = "dark"
+palette_source = "wallpaper"
+wallpaper_scheme = "soft"
+
+[surfaces]
+contrast = "low"
+accent_frequency = "active-only"
+
+[motion]
+intensity = "restrained"

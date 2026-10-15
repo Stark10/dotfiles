@@ -2,7 +2,7 @@ return {
   {
     "folke/sidekick.nvim",
     opts = {
-      -- Keep Copilot completions independent; Sidekick owns only the CLI workflow.
+      -- Sidekick is used for the CLI workflow without next-edit suggestions.
       nes = { enabled = false },
       cli = {
         tools = {

@@ -15,7 +15,92 @@ tasks:
 
   validate:
     desc: Validate scripts, templates, tool configuration, and rendered dotfiles
-    deps: [validate:unix, validate:powershell]
+    deps: [validate:unix, validate:powershell, desktop:validate]
+
+  desktop:audit:
+    desc: Print a read-only, redacted desktop configuration audit
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/audit.sh
+
+  desktop:noctalia:reconcile:
+    desc: Compare safe Noctalia config ownership without printing values
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/noctalia-reconcile.sh
+
+  desktop:noctalia:config:validate:
+    desc: Validate the repo-only Quiet Core config through the desktop suite
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/validate.sh
+
+  desktop:performance:
+    desc: Read one redacted desktop performance snapshot without polling
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/performance.sh
+
+  desktop:preview:dry-run:
+    desc: Validate and print the reversible Quiet Core preview plan
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/preview.sh --dry-run
+
+  desktop:preview:
+    desc: Start the guarded live Quiet Core Noctalia preview
+    platforms: [linux]
+    interactive: true
+    cmds:
+      - ./scripts/desktop/preview.sh
+
+  desktop:preview:rollback:dry-run:
+    desc: Preview restoration of the pre-preview desktop snapshot
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/preview-rollback.sh --dry-run
+
+  desktop:preview:rollback:
+    desc: Restore the desktop state captured before the active preview
+    platforms: [linux]
+    interactive: true
+    cmds:
+      - ./scripts/desktop/preview-rollback.sh
+
+  desktop:validate:
+    desc: Validate the non-disruptive desktop foundation tooling
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/validate.sh
+
+  desktop:prototype:validate:
+    desc: Validate the inert Quiet Core Noctalia visual prototype
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/validate.sh
+
+  desktop:themes:validate:
+    desc: Validate Quiet Core design tokens and wallpaper-theme profiles
+    cmds:
+      - python3 ./scripts/desktop/validate_profiles.py .
+
+  desktop:snapshot:dry-run:
+    desc: Preview the paths included in a desktop safety snapshot
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/snapshot.sh --dry-run
+
+  desktop:snapshot:
+    desc: Create a private desktop configuration snapshot without reloading anything
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/snapshot.sh
+
+  desktop:rollback:dry-run:
+    desc: Preview restoration of the latest desktop safety snapshot
+    platforms: [linux]
+    cmds:
+      - ./scripts/desktop/rollback.sh --dry-run
 
   validate:unix:
     internal: true

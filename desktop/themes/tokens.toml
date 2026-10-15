@@ -1,0 +1,64 @@
+schema = 1
+
+[spacing]
+space_1 = 4
+space_2 = 8
+space_3 = 12
+space_4 = 16
+space_5 = 24
+space_6 = 32
+space_8 = 48
+
+[shape]
+control = 8
+card = 12
+panel = 18
+hero = 24
+pill = 999
+
+[surface]
+bar_fill_min = 0.50
+bar_fill_max = 0.62
+osd_fill_min = 0.78
+osd_fill_max = 0.86
+panel_fill_min = 0.86
+panel_fill_max = 0.92
+dashboard_scrim_min = 0.70
+dashboard_scrim_max = 0.82
+modal_fill_min = 0.92
+modal_fill_max = 0.96
+outline_alpha = 0.08
+
+[colour.dark]
+base = "#090C0C"
+surface = "#111616"
+surface_raised = "#181E1D"
+text = "#EDF2EF"
+text_muted = "#A6B0AB"
+
+[typography]
+ui_family = "Rubik"
+technical_family = "CaskaydiaCove Nerd Font"
+display_size = 80
+heading_size = 28
+title_size = 18
+body_size = 14
+label_size = 12
+telemetry_size = 12
+
+[motion]
+instant_ms = 110
+fast_ms = 160
+panel_ms = 250
+hero_ms = 360
+wallpaper_ms = 550
+entrance_easing = "out-quint"
+exit_easing = "out-cubic"
+entrance_scale = 0.98
+
+[accessibility.reduced_motion]
+scale = false
+deformation = false
+parallax = false
+complex_wallpaper_transition = false
+opacity_transition_ms = 110
